@@ -1,0 +1,46 @@
+<h2>Modul C6 Task 3</h2>
+
+<form>
+    <input class="input" type="text" name="input" placeholder="Здесь вводится текст сообщения"></input>   
+    <button class="btn_send" type="submit">Отправить</button>
+    <button class="btn_geo" type="submit">Гео-локация</button>
+   </form>
+   <div class='chat'></div>
+
+   <script>
+   let websocket = new WebSocket("wss://echo-ws-service.herokuapp.com");
+
+   const chatNode = document.querySelector('.chat');
+    const inputNode = document.querySelector('.input');
+    const btnSend = document.querySelector('.btn_send');
+    const btnGeo = document.querySelector('.btn_geo');
+
+   function writeToScreen(message) {
+  let pre = document.createElement("p");
+  pre.style.wordWrap = "break-word";
+  pre.innerHTML = message;
+  chatNode.appendChild(pre);
+}
+
+    btnSend.addEventListener('click', () => {
+        let message = document.querySelector('.input').value;
+        writeToScreen(message);
+        websocket.send(message);
+        websocket.onmessage = function(evt) {
+    writeToScreen(evt);
+  };
+});
+
+    btnGeo.addEventListener('click', () => {    
+        if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                const { coords } = position;
+                const geoLink = `https://www.openstreetmap.org/#map=14/${coords.latitude}/${coords.longitude}`;
+                const geoLinkMessage = `<a href="${geoLink}">Гео-позиция</a>`;
+                writeToScreen(geoLinkMessage);
+                websocket.send(geoLinkMessage)
+                
+            })
+        }
+});
+</script>
